@@ -1,0 +1,192 @@
+                                
+**************************************************************  
+*                                                            *
+ *                          COREWAR                         *      
+*                                                            *      
+**************************************************************      
+                                        
+
+********************************  
+*           SUMMARY            *      
+********************************      
+
+GENERAL:
+- register-based process VM
+- 1 joueur = 1 champion = 1 ou + processus
+- 1 cycle = tous les processus font une action
+
+EACH PROCESS:
+	- 16 registres de 4 octets
+	- 1 PC (contient l'adresse de la next op du process) 
+	- 1 carry - vaut 1 si derniere op reussie  
+
+PLAYER NUMBER:
+  - soit specifié par la VM en fonction de l'ordre des argv
+  - soit specifié en option
+
+CHAMPION INIT: 
+  - r1 = num player (sert pour le live)
+  - autres rx = 0
+  - sauf le PC
+
+CHAMPION LOADING: 
+  - espacer equitablement leur point d'entrée
+  - size du champion doit etre <= MAX_CHAMP_SIZE (p7)
+
+ARENA MEMORY:
+  - malloc MEM_SIZE 
+  - memoire est circulaire
+  - l'adressage commence a 0 
+
+LIVE MANAGEMENT: 
+  - tous les CYCLE_TO_DIE (1536) check si le champion a emis 
+  au moins 1 LIVE depuis le dernier check
+  - else, kill le process 
+  - compteur de LIVE a chaque check (live_count)
+  - if (live_count >= NBR_LIVE)
+  	CYCLE_TO_DIE = CYCLE_TO_DIE - CYCLE_DELTA
+  - a chaque LIVE emis, print "un processus dit que... "
+  - si on a pas decrementé CYCLE_TO_DIE depuis MAX_CHECKS (nb_checks)
+  	if (nb_checks == MAX_CHECKS) 
+  		CYCLE_TO_DIE = CYCLE_TO_DIE - CYCLE_DELTA
+  		nb_checks = 0
+  - LIVE doit etre fait avec le num du player
+  possibilite de faire des LIVE d'autres players 
+
+END OF GAME: 
+  - quand il n'y a plus de process en vie
+  - main loop du programme ? 
+  	while (live_count)
+  		while (i < CYCLE_TO_DIE) 		
+
+WINNER OF GAME: 
+  - dernier champion a avoir emis LIVE
+  - variable last_live = num player ? 
+  - print win statement "le joueur x(champion_name) a gagne" 
+
+ERROR HANDLING:
+  - afficher les erreurs sur stderr (fd = 2)
+
+USAGE: 
+  - ./corewar [-dump nb_cycles] [[-n number] champion1.cor] ...
+
+MEMORY DUMP: 
+  - dump memoire en hexa - 32 octets par ligne 
+
+
+CARRY: instr. qui le modifient en cas d'echec: 
+	
+BIG ENDIANNESS:
+	- voir : https://chortle.ccsu.edu/AssemblyTutorial/Chapter-15/ass15_3.html
+	- https://betterexplained.com/articles/understanding-big-and-little-endian-byte-order/
+	- to check computer Endianness
+		#include <stdio.h>
+		int main(void)	{
+		    unsigned int x = 1;		    
+			(((char *)&x)[0]) == 1 ? printf("Big Endian\n") 
+			: printf("Little Endian\n");
+			 return (0);
+		}
+
+VM: 
+  - Save opcode during the first cycle
+  - Execute the operation at the end of the cast time
+	- using the saved opcode (even if the memory is different now) 
+	- use the current parameters / args 
+  - Error : If the parameters are now invalid
+	- do nothing, and move the opcode one cell further
+
+
+
+
+
+
+Doubts: 
+=======
+- .name .comment chargé dans l'arene ? 														## No
+- carry modifier en cas d'echec d'op - qu'est qu'un echec ? 
+- num player commence a 0 ou 1 ? 															## 1
+- que signifie kill le process (p6) ? 
+- NBR_LIVE = MAX LIVES emis par un seul champion ou le total des LIVES emis par tous ? 
+- voir le format exact du dump sur la VM 42
+- CHAMP_MAX_SIZE inclut-il .name .comment ? (probablement pas)								## No
+
+
+
+To try:
+=======
+[ ] checker les options de l'ASM, Corewar
+[ ] nm les fonctions de corewar
+[ ] checker les memory dump de corewar
+
+
+********************************  
+*          Structure           *      
+********************************      
+
+VM Setup 
+	- getopt - parsing des options
+	- get players
+		- input error handling
+	- generate arena
+	- read & init process
+	- load process 
+
+Main loop	
+	- cycle - while (process alive)
+	- update VM parameters - every x cycles
+	- update process - every cycle
+		- launch each process op - when ready (not casting)
+			- update arena/VM
+		- kill and fork process - when necessary
+
+Select Winner 
+	- print last Live Player/champion  
+
+Clean VM 
+	- free process
+	- free vm 
+	- free players 	
+		  
+	
+
+
+
+********************************  
+*             To do            *      
+********************************      
+
+Player input
+	[x] ERROR - Invalid name extension .cor
+	[x] ERROR - Too big program
+	[x] ERROR - Wrong chmod permission denied 
+	[x] ERROR - Can't open the file - read return 
+	[x] ERROR - Wrong exec_magic - file type 
+	[x] ERROR - Too many players - MAX_PLAYERS  
+	[ ] Automatic player numbering
+	[ ] Getopt support 
+		
+	
+
+
+
+
+
+
+********************************  
+*             misc.            *      
+********************************      
+
+Translator : Assembler language application (p22)
+IR : Intermediate Representation 
+VM : Stack-based Bytecode interpreter (p26)
+
+Assembler IR : AST -> Abstract Syntax Tree
+LL Recursive Descent Parser
+Syntax Directed Translator (p26/p36) -> Allow a fast and easy translation
+Bytecode Assembler (p265)
+
+
+
+
+
