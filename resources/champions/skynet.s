@@ -149,3 +149,4 @@ wall2:
 	st	r2, 221
 	st	r2, 220
 	zjmp %:wall2
+	

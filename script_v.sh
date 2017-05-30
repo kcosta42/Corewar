@@ -4,7 +4,7 @@ RED="\x1B[1;31m"
 GREEN="\x1B[1;32m"
 EOC="\x1B[0m"
 DIR=log_v
-DIR_C=Corewar/champions
+DIR_C=resources/champions
 NBC=$1
 champ=$2
 
@@ -17,7 +17,7 @@ if [[ $# == 0 ]]
 then
 	echo "Usage: $0 [number of champ 1-4] <champ name> <...>"
 	echo "	-champ name are given without the .cor"
-	echo "	-champ have to be placed in the folder Corewar/champions"
+	echo "	-champ have to be placed in the folder resources/champions"
 	exit 1
 fi
 
